@@ -20,6 +20,7 @@
 #define NITROGEN_HEAT_PENALTY -1.5
 #define BZ_HEAT_PENALTY 5
 #define H2O_HEAT_PENALTY 8
+#define T2O_HEAT_PENALTY 8
 #define FREON_HEAT_PENALTY -10 //very good heat absorbtion and less plasma and o2 generation
 #define HYDROGEN_HEAT_PENALTY 10 // similar heat penalty as tritium (dangerous)
 
@@ -32,6 +33,7 @@
 #define TRITIUM_TRANSMIT_MODIFIER 30 //We divide by 10, so this works out to 3
 #define PLUOXIUM_TRANSMIT_MODIFIER -5 //Should halve the power output
 #define H2O_TRANSMIT_MODIFIER 2
+#define T2O_TRANSMIT_MODIFIER 30
 #define HYDROGEN_TRANSMIT_MODIFIER 25 //increase the radiation emission, but less than the trit (2.5)
 
 #define BZ_RADIOACTIVITY_MODIFIER 5 //Improves the effect of transmit modifiers
@@ -158,6 +160,7 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 		/datum/gas/nitrogen,
 		/datum/gas/pluoxium,
 		/datum/gas/tritium,
+		/datum/gas/tritium_oxide,
 		/datum/gas/bz,
 		/datum/gas/freon,
 		/datum/gas/hydrogen,
@@ -172,6 +175,7 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 		/datum/gas/nitrogen = 0,
 		/datum/gas/pluoxium = 0,
 		/datum/gas/tritium = 0,
+		/datum/gas/tritium_oxide = 0,
 		/datum/gas/bz = 0,
 		/datum/gas/freon = 0,
 		/datum/gas/hydrogen = 0,
@@ -183,6 +187,7 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 		/datum/gas/plasma = PLASMA_TRANSMIT_MODIFIER,
 		/datum/gas/pluoxium = PLUOXIUM_TRANSMIT_MODIFIER,
 		/datum/gas/tritium = TRITIUM_TRANSMIT_MODIFIER,
+		/datum/gas/tritium_oxide = T2O_TRANSMIT_MODIFIER,
 		/datum/gas/bz = BZ_TRANSMIT_MODIFIER,
 		/datum/gas/hydrogen = HYDROGEN_TRANSMIT_MODIFIER,
 	)
@@ -195,6 +200,7 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 		/datum/gas/nitrogen = NITROGEN_HEAT_PENALTY,
 		/datum/gas/pluoxium = PLUOXIUM_HEAT_PENALTY,
 		/datum/gas/tritium = TRITIUM_HEAT_PENALTY,
+		/datum/gas/tritium_oxide = T2O_HEAT_PENALTY,
 		/datum/gas/bz = BZ_HEAT_PENALTY,
 		/datum/gas/freon = FREON_HEAT_PENALTY,
 		/datum/gas/hydrogen = HYDROGEN_HEAT_PENALTY,
@@ -214,6 +220,7 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 		/datum/gas/nitrogen = -1,
 		/datum/gas/pluoxium = -1,
 		/datum/gas/tritium = 1,
+		/datum/gas/tritium_oxide = 1,
 		/datum/gas/bz = 1,
 		/datum/gas/freon = -1,
 		/datum/gas/hydrogen = 1,

@@ -1,20 +1,26 @@
 //All defines used in reactions are located in ..\__DEFINES\reactions.dm
 /*priority so far, check this list to see what are the numbers used. please use a different priority if the reaction doesn't work (higher number are done first)
-miaster = -10 (this should always be under all other fires)
-freonfire = -4
-plasmafire = -3
-h2fire = -2
-tritfire = -1
+miaster = -100 (this should always be under all other fires)
+
+freonfire = -40
+plasmafire = -30
+
+h2fire = -20
+tritfire = -19
+
 nitrous_decomp = 0
-water_vapor = 1
-fusion = 2
-nitrylformation = 3
-bzformation = 4
-freonformation = 5
-stimformation = 5
-nobiliumformation = 6
-stimball = 7
-ammoniacrystals = 8
+h2o_decomp = 1
+t2o_decomp = 2
+
+water_vapor = 10
+fusion = 20
+nitrylformation = 30
+bzformation = 40
+freonformation = 50
+stimformation = 50
+nobiliumformation = 60
+stimball = 70
+ammoniacrystals = 80
 nobiliumsuppression = INFINITY
 */
 
@@ -57,6 +63,7 @@ nobiliumsuppression = INFINITY
 /datum/gas_reaction/proc/react(datum/gas_mixture/air, atom/location)
 	return NO_REACTION
 
+//Noblium: stop interactions
 /datum/gas_reaction/nobliumsupression
 	priority = INFINITY
 	name = "Hyper-Noblium Reaction Suppression"
@@ -70,7 +77,7 @@ nobiliumsuppression = INFINITY
 
 //water vapor: puts out fires?
 /datum/gas_reaction/water_vapor
-	priority = 1
+	priority = 10
 	name = "Water Vapor"
 	id = "vapor"
 
@@ -88,7 +95,7 @@ nobiliumsuppression = INFINITY
 			air.gases[/datum/gas/water_vapor][MOLES] -= MOLES_GAS_VISIBLE
 			. = REACTING
 
-//tritium combustion: combustion of oxygen and tritium (treated as hydrocarbons). creates hotspots. exothermic
+// exothermically decompose N2O into N2 and O2, ~~starting slowly from 1400K but rapidly speeding up as it approaches ~6400K.~~ starting from 1400, reaching a peak at 50000K and stopping completely at 100000K.
 /datum/gas_reaction/nitrous_decomp
 	priority = 0
 	name = "Nitrous Oxide Decomposition"
@@ -125,9 +132,81 @@ nobiliumsuppression = INFINITY
 		return REACTING
 	return NO_REACTION
 
+// Thermolysis of water (decomposition) in h2 and o2. Endothermic.
+/datum/gas_reaction/h2o_decomp
+	priority = 0
+	name = "Water Decomposition"
+	id = "h2o_decomp"
+
+/datum/gas_reaction/h2o_decomp/init_reqs()
+	min_requirements = list(
+		"TEMP" = WATER_DECOMPOSITION_MIN_ENERGY,
+		/datum/gas/water_vapor = MINIMUM_MOLE_COUNT
+	)
+
+/datum/gas_reaction/h2o_decomp/react(datum/gas_mixture/air, datum/holder)
+	var/energy_released = 0
+	var/old_heat_capacity = air.heat_capacity()
+	var/list/cached_gases = air.gases //this speeds things up because accessing datum vars is slow
+	var/temperature = air.temperature
+	var/burned_fuel = 0
+
+	burned_fuel = max(0,0.00002*(temperature-(0.00001*(temperature**2))))*cached_gases[/datum/gas/water_vapor][MOLES]
+	cached_gases[/datum/gas/water_vapor][MOLES] -= burned_fuel
+
+	if(burned_fuel)
+		energy_released += (-FIRE_HYDROGEN_ENERGY_RELEASED * burned_fuel)
+
+		ASSERT_GAS(/datum/gas/oxygen, air)
+		cached_gases[/datum/gas/oxygen][MOLES] += burned_fuel/2
+		ASSERT_GAS(/datum/gas/hydrogen, air)
+		cached_gases[/datum/gas/hydrogen][MOLES] += burned_fuel
+
+		var/new_heat_capacity = air.heat_capacity()
+		if(new_heat_capacity > MINIMUM_HEAT_CAPACITY)
+			air.temperature = (temperature*old_heat_capacity + energy_released)/new_heat_capacity
+		return REACTING
+	return NO_REACTION
+
+// Thermolysis of tritium oxide into tritium and o2. Endothermic.
+/datum/gas_reaction/t2o_decomp
+	priority = 0
+	name = "Tritium Oxide Decomposition"
+	id = "t2o_decomp"
+
+/datum/gas_reaction/t2o_decomp/init_reqs()
+	min_requirements = list(
+		"TEMP" = WATER_DECOMPOSITION_MIN_ENERGY,
+		/datum/gas/tritium_oxide = MINIMUM_MOLE_COUNT
+	)
+
+/datum/gas_reaction/t2o_decomp/react(datum/gas_mixture/air, datum/holder)
+	var/energy_released = 0
+	var/old_heat_capacity = air.heat_capacity()
+	var/list/cached_gases = air.gases //this speeds things up because accessing datum vars is slow
+	var/temperature = air.temperature
+	var/burned_fuel = 0
+
+	burned_fuel = max(0,0.00002*(temperature-(0.00001*(temperature**2))))*cached_gases[/datum/gas/tritium_oxide][MOLES]
+	cached_gases[/datum/gas/tritium_oxide][MOLES] -= burned_fuel
+
+	if(burned_fuel)
+		energy_released += (-FIRE_HYDROGEN_ENERGY_RELEASED * burned_fuel)
+
+		ASSERT_GAS(/datum/gas/oxygen, air)
+		cached_gases[/datum/gas/oxygen][MOLES] += burned_fuel/2
+		ASSERT_GAS(/datum/gas/tritium, air)
+		cached_gases[/datum/gas/tritium][MOLES] += burned_fuel
+
+		var/new_heat_capacity = air.heat_capacity()
+		if(new_heat_capacity > MINIMUM_HEAT_CAPACITY)
+			air.temperature = (temperature*old_heat_capacity + energy_released)/new_heat_capacity
+		return REACTING
+	return NO_REACTION
+
 //tritium combustion: combustion of oxygen and tritium (treated as hydrocarbons). creates hotspots. exothermic
 /datum/gas_reaction/tritfire
-	priority = -1 //fire should ALWAYS be last, but tritium fires happen before plasma fires
+	priority = -19 //fire should ALWAYS be last, but tritium fires happen before plasma fires
 	name = "Tritium Combustion"
 	id = "tritfire"
 
@@ -160,8 +239,8 @@ nobiliumsuppression = INFINITY
 		if(location && prob(10) && burned_fuel > TRITIUM_MINIMUM_RADIATION_ENERGY) //woah there let's not crash the server
 			radiation_pulse(location, energy_released/TRITIUM_BURN_RADIOACTIVITY_FACTOR)
 
-		ASSERT_GAS(/datum/gas/water_vapor, air) //oxygen+more-or-less hydrogen=H2O
-		cached_gases[/datum/gas/water_vapor][MOLES] += burned_fuel/TRITIUM_BURN_OXY_FACTOR
+		ASSERT_GAS(/datum/gas/tritium_oxide, air) //oxygen+more-or-less hydrogen=H2O
+		cached_gases[/datum/gas/tritium_oxide][MOLES] += burned_fuel/TRITIUM_BURN_OXY_FACTOR
 
 		cached_results["fire"] += burned_fuel
 
@@ -184,7 +263,7 @@ nobiliumsuppression = INFINITY
 
 //plasma combustion: combustion of oxygen and plasma (treated as hydrocarbons). creates hotspots. exothermic
 /datum/gas_reaction/plasmafire
-	priority = -3 //fire should ALWAYS be last, but plasma fires happen after tritium fires
+	priority = -30 //fire should ALWAYS be last, but plasma fires happen after tritium fires
 	name = "Plasma Combustion"
 	id = "plasmafire"
 
@@ -261,7 +340,7 @@ nobiliumsuppression = INFINITY
 
 //freon reaction (is not a fire yet)
 datum/gas_reaction/freonfire
-	priority = -4
+	priority = -40
 	name = "Freon combustion"
 	id = "freonfire"
 
@@ -313,7 +392,7 @@ datum/gas_reaction/freonfire/react(datum/gas_mixture/air, datum/holder)
 			air.temperature = (temperature*old_heat_capacity + energy_released)/new_heat_capacity
 
 /datum/gas_reaction/h2fire
-	priority = -2 //fire should ALWAYS be last, but tritium fires happen before plasma fires
+	priority = -20 //fire should ALWAYS be last, but tritium fires happen before plasma fires
 	name = "Hydrogen Combustion"
 	id = "h2fire"
 
@@ -367,7 +446,7 @@ datum/gas_reaction/freonfire/react(datum/gas_mixture/air, datum/holder)
 	return cached_results["fire"] ? REACTING : NO_REACTION
 
 /datum/gas_reaction/ammoniacrystals
-	priority = 8
+	priority = 80
 	name = "Ammonia crystals formation"
 	id = "nh4crystals"
 
@@ -402,7 +481,7 @@ datum/gas_reaction/freonfire/react(datum/gas_mixture/air, datum/holder)
 
 /datum/gas_reaction/fusion
 	exclude = FALSE
-	priority = 2
+	priority = 20
 	name = "Plasmic Fusion"
 	id = "fusion"
 
@@ -482,7 +561,7 @@ datum/gas_reaction/freonfire/react(datum/gas_mixture/air, datum/holder)
 		return REACTING
 
 /datum/gas_reaction/nitrousformation //formationn of n2o, esothermic, requires bz as catalyst
-	priority = 3
+	priority = 30
 	name = "Nitrous Oxide formation"
 	id = "nitrousformation"
 
@@ -516,7 +595,7 @@ datum/gas_reaction/freonfire/react(datum/gas_mixture/air, datum/holder)
 		return REACTING
 
 /datum/gas_reaction/nitrylformation //The formation of nitryl. Endothermic. Requires bz.
-	priority = 3
+	priority = 30
 	name = "Nitryl formation"
 	id = "nitrylformation"
 
@@ -550,7 +629,7 @@ datum/gas_reaction/freonfire/react(datum/gas_mixture/air, datum/holder)
 		return REACTING
 
 /datum/gas_reaction/bzformation //Formation of BZ by combining plasma and tritium at low pressures. Exothermic.
-	priority = 4
+	priority = 40
 	name = "BZ Gas formation"
 	id = "bzformation"
 
@@ -588,7 +667,7 @@ datum/gas_reaction/freonfire/react(datum/gas_mixture/air, datum/holder)
 		return REACTING
 
 /datum/gas_reaction/metalhydrogen
-	priority = 9
+	priority = 90
 	name = "Metal Hydrogen formation"
 	id = "metalhydrogen"
 
@@ -626,7 +705,7 @@ datum/gas_reaction/freonfire/react(datum/gas_mixture/air, datum/holder)
 		return REACTING
 
 /datum/gas_reaction/freonformation
-	priority = 5
+	priority = 50
 	name = "Freon formation"
 	id = "freonformation"
 
@@ -659,7 +738,7 @@ datum/gas_reaction/freonfire/react(datum/gas_mixture/air, datum/holder)
 		return REACTING
 
 /datum/gas_reaction/stimformation //Stimulum formation follows a strange pattern of how effective it will be at a given temperature, having some multiple peaks and some large dropoffs. Exo and endo thermic.
-	priority = 5
+	priority = 50
 	name = "Stimulum formation"
 	id = "stimformation"
 
@@ -693,7 +772,7 @@ datum/gas_reaction/freonfire/react(datum/gas_mixture/air, datum/holder)
 		return REACTING
 
 /datum/gas_reaction/nobliumformation //Hyper-Noblium formation is extrememly endothermic, but requires high temperatures to start. Due to its high mass, hyper-nobelium uses large amounts of nitrogen and tritium. BZ can be used as a catalyst to make it less endothermic.
-	priority = 6
+	priority = 60
 	name = "Hyper-Noblium condensation"
 	id = "nobformation"
 
@@ -723,7 +802,7 @@ datum/gas_reaction/freonfire/react(datum/gas_mixture/air, datum/holder)
 
 
 /datum/gas_reaction/miaster	//dry heat sterilization: clears out pathogens in the air
-	priority = -10 //after all the heating from fires etc. is done
+	priority = -100 //after all the heating from fires etc. is done
 	name = "Dry Heat Sterilization"
 	id = "sterilization"
 
@@ -749,7 +828,7 @@ datum/gas_reaction/freonfire/react(datum/gas_mixture/air, datum/holder)
 	air.temperature += cleaned_air * 0.002
 
 /datum/gas_reaction/stim_ball
-	priority = 7
+	priority = 70
 	name ="Stimulum Energy Ball"
 	id = "stimball"
 

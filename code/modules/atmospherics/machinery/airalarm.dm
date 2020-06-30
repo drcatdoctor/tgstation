@@ -33,6 +33,12 @@
 	max1 = 0.2
 	max2 = 0.5
 
+/datum/tlv/really_dangerous
+	min2 = -1
+	min1 = -1
+	max1 = 0.01
+	max2 = 0.01
+
 /obj/item/electronics/airalarm
 	name = "air alarm electronics"
 	custom_price = 50
@@ -98,6 +104,7 @@
 		/datum/gas/bz				= new/datum/tlv/dangerous,
 		/datum/gas/hypernoblium		= new/datum/tlv(-1, -1, 1000, 1000), // Hyper-Noblium is inert and nontoxic
 		/datum/gas/water_vapor		= new/datum/tlv/dangerous,
+		/datum/gas/tritium_oxide	= new/datum/tlv/really_dangerous,
 		/datum/gas/tritium			= new/datum/tlv/dangerous,
 		/datum/gas/stimulum			= new/datum/tlv/dangerous,
 		/datum/gas/nitryl			= new/datum/tlv/dangerous,
@@ -119,6 +126,7 @@
 		/datum/gas/bz				= new/datum/tlv/no_checks,
 		/datum/gas/hypernoblium		= new/datum/tlv/no_checks,
 		/datum/gas/water_vapor		= new/datum/tlv/no_checks,
+		/datum/gas/tritium_oxide	= new/datum/tlv/no_checks,
 		/datum/gas/tritium			= new/datum/tlv/no_checks,
 		/datum/gas/stimulum			= new/datum/tlv/no_checks,
 		/datum/gas/nitryl			= new/datum/tlv/no_checks,
@@ -140,6 +148,7 @@
 		/datum/gas/bz				= new/datum/tlv/dangerous,
 		/datum/gas/hypernoblium		= new/datum/tlv(-1, -1, 1000, 1000), // Hyper-Noblium is inert and nontoxic
 		/datum/gas/water_vapor		= new/datum/tlv/dangerous,
+		/datum/gas/tritium_oxide	= new/datum/tlv/really_dangerous,
 		/datum/gas/tritium			= new/datum/tlv/dangerous,
 		/datum/gas/stimulum			= new/datum/tlv/dangerous,
 		/datum/gas/nitryl			= new/datum/tlv/dangerous,
@@ -527,6 +536,7 @@
 						/datum/gas/miasma,
 						/datum/gas/plasma,
 						/datum/gas/water_vapor,
+						/datum/gas/tritium_oxide,
 						/datum/gas/hypernoblium,
 						/datum/gas/nitrous_oxide,
 						/datum/gas/nitryl,

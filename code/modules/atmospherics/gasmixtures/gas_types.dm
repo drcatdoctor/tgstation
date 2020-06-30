@@ -85,6 +85,15 @@ GLOBAL_LIST_INIT(nonreactive_gases, typecacheof(list(/datum/gas/oxygen, /datum/g
 	fusion_power = 8
 	rarity = 500
 
+/datum/gas/tritium_oxide
+	id = "t2o"
+	specific_heat = 44
+	name = "Tritium Oxide"
+	gas_overlay = "water_vapor"
+	moles_visible = MOLES_GAS_VISIBLE
+	fusion_power = 12
+	rarity = 350
+
 /datum/gas/hypernoblium
 	id = "nob"
 	specific_heat = 2000
