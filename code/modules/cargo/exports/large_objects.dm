@@ -130,13 +130,14 @@
 	var/obj/machinery/portable_atmospherics/canister/C = O
 	var/worth = 10
 	var/gases = C.air_contents.gases
-	C.air_contents.assert_gases(/datum/gas/bz,/datum/gas/stimulum,/datum/gas/hypernoblium,/datum/gas/miasma,/datum/gas/tritium,/datum/gas/pluoxium,/datum/gas/freon,/datum/gas/hydrogen)
+	C.air_contents.assert_gases(/datum/gas/bz,/datum/gas/stimulum,/datum/gas/hypernoblium,/datum/gas/miasma,/datum/gas/tritium,/datum/gas/tritium_oxide,/datum/gas/pluoxium,/datum/gas/freon,/datum/gas/hydrogen)
 
 	worth += gases[/datum/gas/bz][MOLES]*4
 	worth += gases[/datum/gas/stimulum][MOLES]*100
 	worth += gases[/datum/gas/hypernoblium][MOLES]*1000
 	worth += gases[/datum/gas/miasma][MOLES]*10
 	worth += gases[/datum/gas/tritium][MOLES]*5
+	worth += gases[/datum/gas/tritium_oxide][MOLES]*15
 	worth += gases[/datum/gas/pluoxium][MOLES]*5
 	worth += gases[/datum/gas/freon][MOLES]*15
 	worth += gases[/datum/gas/hydrogen][MOLES]*1
