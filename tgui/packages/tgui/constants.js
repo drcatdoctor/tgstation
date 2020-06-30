@@ -156,7 +156,7 @@ const GASES = [
   {
     'id': 'nob',
     'name': 'Hyper-noblium',
-    'label': 'Hyper-nob',
+    'label': 'Hn',
     'color': 'teal',
   },
   {
@@ -174,7 +174,13 @@ const GASES = [
   {
     'id': 'tritium',
     'name': 'Tritium',
-    'label': 'Tritium',
+    'label': 'T₂',
+    'color': 'green',
+  },
+  {
+    'id': 't2o',
+    'name': 'Tritium Oxide',
+    'label': 'T₂O',
     'color': 'green',
   },
   {
