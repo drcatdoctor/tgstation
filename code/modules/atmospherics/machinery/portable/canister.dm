@@ -60,6 +60,7 @@
 		"bz" = /obj/machinery/portable_atmospherics/canister/bz,
 		"air" = /obj/machinery/portable_atmospherics/canister/air,
 		"water vapor" = /obj/machinery/portable_atmospherics/canister/water_vapor,
+		"tritium oxide" = /obj/machinery/portable_atmospherics/canister/tritium_oxide,
 		"tritium" = /obj/machinery/portable_atmospherics/canister/tritium,
 		"hyper-noblium" = /obj/machinery/portable_atmospherics/canister/nob,
 		"stimulum" = /obj/machinery/portable_atmospherics/canister/stimulum,
@@ -171,6 +172,14 @@
 	icon_state = "water_vapor"
 	base_icon_state = "water_vapor"
 	gas_type = /datum/gas/water_vapor
+	filled = 1
+
+/obj/machinery/portable_atmospherics/canister/tritium_oxide
+	name = "tritium oxide canister"
+	desc = "Tritium oxide, also known as tritiated water or T2O. Like tritium, but worse."
+	icon_state = "green"
+	base_icon_state = "green"
+	gas_type = /datum/gas/tritium_oxide
 	filled = 1
 
 /obj/machinery/portable_atmospherics/canister/miasma
