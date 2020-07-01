@@ -99,7 +99,7 @@
 
 	var/list/breath_gases = breath.gases
 
-	breath.assert_gases(/datum/gas/oxygen, /datum/gas/plasma, /datum/gas/carbon_dioxide, /datum/gas/nitrous_oxide, /datum/gas/bz, /datum/gas/nitrogen, /datum/gas/tritium, /datum/gas/tritium_oxide, /datum/gas/nitryl, /datum/gas/pluoxium, /datum/gas/stimulum, /datum/gas/freon)
+	breath.assert_gases(/datum/gas/oxygen, /datum/gas/plasma, /datum/gas/carbon_dioxide, /datum/gas/nitrous_oxide, /datum/gas/bz, /datum/gas/nitrogen, /datum/gas/tritium, /datum/gas/tritium_oxide, /datum/gas/nitryl, /datum/gas/pluoxium, /datum/gas/stimulum, /datum/gas/freon, /datum/gas/water_vapor)
 
 	//Partial pressures in our breath
 	var/O2_pp = breath.get_breath_partial_pressure(breath_gases[/datum/gas/oxygen][MOLES])+(8*breath.get_breath_partial_pressure(breath_gases[/datum/gas/pluoxium][MOLES]))
@@ -279,8 +279,15 @@
 			H.radiation += trit_pp/10
 
 	// Tritium Oxide
-		var/t2o_pp = breath.get_breath_partial_pressure(breath_gases[/datum/gas/tritium_oxide][MOLES])
-		H.radiation += t2o_pp * 1000 // o no
+		var/t2o_mols = breath_gases[/datum/gas/tritium_oxide][MOLES]
+		var/t2o_pp = breath.get_breath_partial_pressure(t2o_mols)
+		if (t2o_pp > 0)
+			H.adjustFireLoss(t2o_pp / 10) // it's a little acidic
+			H.radiation += t2o_pp * 100   // but it's a spicy meatball of radiation
+
+			// t2o is fully exchanged with body water while in your lungs which is why it sucks so much
+			breath_gases[/datum/gas/tritium_oxide] -= t2o_mols
+			breath_gases[/datum/gas/water_vapor] += t2o_mols
 
 	// Nitryl
 		var/nitryl_pp = breath.get_breath_partial_pressure(breath_gases[/datum/gas/nitryl][MOLES])
